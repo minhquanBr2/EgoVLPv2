@@ -12,8 +12,8 @@ import tqdm
 from parse_config import ConfigParser
 from utils import state_dict_data_parallel_fix
 import pathlib
-temp = pathlib.PosixPath
-pathlib.PosixPath = pathlib.WindowsPath
+# temp = pathlib.PosixPath
+# pathlib.PosixPath = pathlib.WindowsPath
 
 import data_loader.data_loader as module_data
 import model.loss as module_loss
@@ -167,7 +167,7 @@ def eval():
     # Classify the images
     predicted_class = classify_image(args.image, model, tokenizer, cls_arr, device, config, args)
     print(f'Predicted Action Class: {predicted_class}')
-    pathlib.PosixPath = temp
+    # pathlib.PosixPath = temp
 
 if __name__ == '__main__':
     eval()
