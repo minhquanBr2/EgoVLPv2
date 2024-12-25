@@ -94,7 +94,7 @@ def classify_image(image_path, model, tokenizer, cls_arr, device, config, args):
             args=args,
             config=None,
             loss_dual=None,
-            gpu="cpu",
+            gpu="cuda",
             return_embeds=True
         )
 
