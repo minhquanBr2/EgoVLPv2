@@ -49,7 +49,38 @@ def print_config(config):
     else:
         print(config)  # If config is not a dictionary, just print it
 
-def classify_image(image_path, model, tokenizer, cls_arr, device, config, args):
+def prepare_text_embeds(cls_arr, tokenizer, model, device, config, args):
+    texts = cls_arr
+    tokenized_texts = tokenizer(
+        texts, 
+        padding=True, 
+        truncation=True, 
+        return_tensors="pt"
+    )
+    text_data = {
+        "input_ids": tokenized_texts["input_ids"].to(device), 
+        "attention_mask": tokenized_texts["attention_mask"].to(device)
+    }
+
+    with torch.no_grad():
+        data = {
+            'text': text_data,
+            'video': _
+        }
+        _, _, ret = model(
+            data, 
+            allgather=None,
+            n_gpu=config['n_gpu'],
+            args=args,
+            config=None,
+            loss_dual=None,
+            gpu="cuda",
+            return_embeds=True
+        )    
+    text_embeds = ret['text_embeds'].cpu().detach()
+    return text_embeds
+
+def classify_image(image_path, model, tokenizer, text_embeds, device, config, args):
     """
     Classify a single image and return the predicted action class.
     
@@ -70,23 +101,11 @@ def classify_image(image_path, model, tokenizer, cls_arr, device, config, args):
     video_data = frames.unsqueeze(0)  
     video_data = video_data.to(device)
 
-    texts = cls_arr
-    tokenized_texts = tokenizer(
-        texts, 
-        padding=True, 
-        truncation=True, 
-        return_tensors="pt"
-    )
-    text_data = {
-        "input_ids": tokenized_texts["input_ids"].to(device), 
-        "attention_mask": tokenized_texts["attention_mask"].to(device)
-    }
-
     # Forward pass through the model
     model.eval()
     with torch.no_grad():
         data = {
-            'text': text_data,
+            'text': _,
             'video': video_data
         }
         _, _, ret = model(
@@ -102,7 +121,6 @@ def classify_image(image_path, model, tokenizer, cls_arr, device, config, args):
 
     # Compute similarity between text and image embeddings
     video_embeds = ret['video_embeds'].cpu().detach()
-    text_embeds = ret['text_embeds'].cpu().detach()
     sim_v2t = ret['sim_v2t'].cpu().detach()
     print(f"Video Embeddings Shape: {video_embeds.shape}")
     print(f"Text Embeddings Shape: {text_embeds.shape}")
@@ -180,13 +198,16 @@ def eval():
         print('Using random weights')
     model = model.to(device)
 
+    # Prepare text embeds
+    text_embeds = prepare_text_embeds(cls_arr, tokenizer, model, device, config, args)    
+
     # Classify the images
     test_images_list_path = args.test_images_list_path
     with open(test_images_list_path, "r") as f:
         test_files = [line.strip() for line in f.readlines()]
     for image_path in test_files:
         print(f"Classifying image: {image_path}")
-        class_idx, predicted_class = classify_image(image_path, model, tokenizer, cls_arr, device, config, args)
+        class_idx, predicted_class = classify_image(image_path, model, tokenizer, text_embeds, device, config, args)
         print(f'Predicted Action Class: {predicted_class}')
         save_image(args.save_dir, predicted_class, image_path)
     # pathlib.PosixPath = temp
