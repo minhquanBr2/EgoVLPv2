@@ -109,7 +109,7 @@ def classify_image(image_path, model, tokenizer, cls_arr, device, config, args):
 
     predicted_idx = torch.argmax(sim_v2t).item()
 
-    return cls_arr[predicted_idx]
+    return predicted_idx, cls_arr[predicted_idx]
 
 def eval():
     args = argparse.ArgumentParser(description='PyTorch Action Recognition for Single Image')
@@ -166,8 +166,9 @@ def eval():
     model = model.to(device)
 
     # Classify the images
-    predicted_class = classify_image(args.image, model, tokenizer, cls_arr, device, config, args)
+    class_idx, predicted_class = classify_image(args.image, model, tokenizer, cls_arr, device, config, args)
     print(f'Predicted Action Class: {predicted_class}')
+    print(class_idx)
     # pathlib.PosixPath = temp
 
 if __name__ == '__main__':
