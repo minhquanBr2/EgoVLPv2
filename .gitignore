@@ -63,3 +63,5 @@ dist/
 # Custom
 *.custom.py
 
+EgoVLPv2/checkpoints/*
+

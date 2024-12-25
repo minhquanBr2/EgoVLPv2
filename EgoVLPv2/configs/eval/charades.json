@@ -18,7 +18,7 @@
                 "input": "text"
             },
             "projection": "minimal",
-            "load_checkpoint": "Charades-Ego_finetune.pth"
+            "load_checkpoint": "./checkpoints/Charades-Ego_finetune.pth"
 	}
     },
     "data_loader":

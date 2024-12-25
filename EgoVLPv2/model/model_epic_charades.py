@@ -86,8 +86,8 @@ class FrozenInTime(BaseModel):
             arch_config = 'base_patch16_224'
             vit_init = 'imagenet-21k'
             if arch_config == 'base_patch16_224':
-                #vit_model = timm.models.vision_transformer.vit_base_patch16_224(pretrained=pretrained)
-                vit_model = torch.load("/cis/home/shraman/works_meta_2022/pre-training/EgoVLP_Fused_HardNegITM_Checkpoint_multinode/frozen-in-time-main/pretrained/jx_vit_base_p16_224-80ecf9dd.pth", map_location="cpu")
+                vit_model = timm.models.vision_transformer.vit_base_patch16_224(pretrained=pretrained)
+                # vit_model = torch.load("/cis/home/shraman/works_meta_2022/pre-training/EgoVLP_Fused_HardNegITM_Checkpoint_multinode/frozen-in-time-main/pretrained/jx_vit_base_p16_224-80ecf9dd.pth", map_location="cpu")
                 model = SpaceTimeTransformer(num_frames=self.num_frames,
                                             time_init=time_init,
                                             attention_style=attention_style,
@@ -411,29 +411,30 @@ class FrozenInTime(BaseModel):
 
         ret = {}
         loss_dict = {}
+        loss = None
 
         if 'Dual' in task_names:
             
             ret = self.infer(data, task_names='Dual')
             video_embeds = ret['video_embeds']
             text_embeds = ret['text_embeds']
-            video_embeds = allgather(video_embeds, n_gpu, args)
-            text_embeds = allgather(text_embeds, n_gpu, args)
+            # video_embeds = allgather(video_embeds, n_gpu, args)
+            # text_embeds = allgather(text_embeds, n_gpu, args)
 
             output = sim_matrix(text_embeds, video_embeds)
 
-            if dataset_name == 'epic':
-                w_embeds = data['relation']
-                w_embeds = allgather(w_embeds, n_gpu, args)
-                loss = loss_dual(output, w_embeds)
-            elif dataset_name == 'charades':
-                loss, temp = loss_dual(output)
-            else:
-                raise NameError()
+            # if dataset_name == 'epic':
+            #     w_embeds = data['relation']
+            #     w_embeds = allgather(w_embeds, n_gpu, args)
+            #     loss = loss_dual(output, w_embeds)
+            # elif dataset_name == 'charades':
+            #     loss, temp = loss_dual(output)
+            # else:
+            #     raise NameError()
 
-            if dataset_name == 'epic':
-                ret.update({"sim_v2t": output, "sim_t2v": output.t(), 'epic_relation': w_embeds})
-            elif dataset_name == 'charades':
+            # if dataset_name == 'epic':
+            #     ret.update({"sim_v2t": output, "sim_t2v": output.t(), 'epic_relation': w_embeds})
+            if dataset_name == 'charades':
                 ret.update({"sim_v2t": output, "sim_t2v": output.t()})
             else:
                 raise NameError()
