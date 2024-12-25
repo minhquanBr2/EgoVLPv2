@@ -67,6 +67,7 @@ def classify_image(image_path, model, tokenizer, cls_arr, device, config, args):
     transformed_image = image_transform(image) 
     frames = transformed_image.unsqueeze(0).repeat(32, 1, 1, 1)
     video_data = frames.unsqueeze(0)  
+    video_data = video_data.to(device)
 
     texts = cls_arr
     tokenized_texts = tokenizer(
@@ -76,16 +77,16 @@ def classify_image(image_path, model, tokenizer, cls_arr, device, config, args):
         return_tensors="pt"
     )
     text_data = {
-        "input_ids": tokenized_texts["input_ids"], 
-        "attention_mask": tokenized_texts["attention_mask"]
+        "input_ids": tokenized_texts["input_ids"].to(device), 
+        "attention_mask": tokenized_texts["attention_mask"].to(device)
     }
 
     # Forward pass through the model
     model.eval()
     with torch.no_grad():
         data = {
-            'text': text_data.to(device),
-            'video': video_data.to(device)
+            'text': text_data,
+            'video': video_data
         }
         _, _, ret = model(
             data, 
