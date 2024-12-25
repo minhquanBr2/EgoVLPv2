@@ -8,6 +8,7 @@ from csv import reader
 from torchvision import transforms
 from PIL import Image
 import numpy as np
+import shutil
 import tqdm
 from parse_config import ConfigParser
 from utils import state_dict_data_parallel_fix
