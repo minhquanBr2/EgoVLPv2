@@ -187,7 +187,7 @@ def eval():
         print(f"Classifying image: {image_path}")
         class_idx, predicted_class = classify_image(image_path, model, tokenizer, cls_arr, device, config, args)
         print(f'Predicted Action Class: {predicted_class}')
-        save_image(output_dir, predicted_class, image_path)
+        save_image(args.save_dir, predicted_class, image_path)
     # pathlib.PosixPath = temp
 
 if __name__ == '__main__':
