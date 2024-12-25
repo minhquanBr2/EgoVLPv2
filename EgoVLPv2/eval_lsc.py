@@ -111,6 +111,19 @@ def classify_image(image_path, model, tokenizer, cls_arr, device, config, args):
 
     return predicted_idx, cls_arr[predicted_idx]
 
+def save_image(output_dir, predicted_class, image_path):
+    """
+    Save the image to the output directory with the predicted action class as the filename.
+    
+    Args:
+        output_dir (str): Path to the output directory.
+        predicted_class (str): Predicted action class.
+        image_path (str): Path to the input image.
+    """
+    dest_folder = os.path.join(output_dir, predicted_class)
+    shutil.copy(image_path, dest_folder)
+    print(f"Copied {image_path} to {dest_folder}")
+
 def eval():
     args = argparse.ArgumentParser(description='PyTorch Action Recognition for Single Image')
 
@@ -120,7 +133,8 @@ def eval():
                       help='Indices of GPUs to enable (default: all)')
     args.add_argument('-i', '--image', required=True, type=str,
                       help='Path to the input image')
-    
+    args.add_argument('--test_images_list_path', default=None, type=str,
+                      help='Path to the list of test images.')    
     args.add_argument('-d', '--device', default=None, type=str,
                       help='indices of GPUs to enable (default: all)')
     args.add_argument('-c', '--config', default="./configs/eval/charades.json", type=str,
@@ -149,7 +163,7 @@ def eval():
     with open(args.class_labels_file, 'r') as charades:
         csv_reader = list(reader(charades))
     for line in csv_reader:
-        cls_arr.append(line[0][5:])
+        cls_arr.append(line[0])
 
     # Load tokenizer
     tokenizer = transformers.AutoTokenizer.from_pretrained(config['arch']['args']['text_params']['model'])
@@ -166,9 +180,14 @@ def eval():
     model = model.to(device)
 
     # Classify the images
-    class_idx, predicted_class = classify_image(args.image, model, tokenizer, cls_arr, device, config, args)
-    print(f'Predicted Action Class: {predicted_class}')
-    print(class_idx)
+    test_images_list_path = args.test_images_list_path
+    with open(test_file_path, "r") as f:
+        test_files = [line.strip() for line in f.readlines()]
+    for image_path in test_files:
+        print(f"Classifying image: {image_path}")
+        class_idx, predicted_class = classify_image(image_path, model, tokenizer, cls_arr, device, config, args)
+        print(f'Predicted Action Class: {predicted_class}')
+        save_image(output_dir, predicted_class, image_path)
     # pathlib.PosixPath = temp
 
 if __name__ == '__main__':
