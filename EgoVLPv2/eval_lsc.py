@@ -84,8 +84,8 @@ def classify_image(image_path, model, tokenizer, cls_arr, device, config, args):
     model.eval()
     with torch.no_grad():
         data = {
-            'text': text_data,
-            'video': video_data
+            'text': text_data.to(device),
+            'video': video_data.to(device)
         }
         _, _, ret = model(
             data, 
