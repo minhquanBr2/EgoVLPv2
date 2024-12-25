@@ -131,7 +131,7 @@ def eval():
                       help='Path to latest checkpoint (default: None)')
     args.add_argument('-gpu', '--gpu', default=1, type=str,
                       help='Indices of GPUs to enable (default: all)')
-    args.add_argument('-i', '--image', required=True, type=str,
+    args.add_argument('-i', '--image', type=str,
                       help='Path to the input image')
     args.add_argument('--test_images_list_path', default=None, type=str,
                       help='Path to the list of test images.')    
