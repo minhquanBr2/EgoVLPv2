@@ -181,7 +181,7 @@ def eval():
 
     # Classify the images
     test_images_list_path = args.test_images_list_path
-    with open(test_file_path, "r") as f:
+    with open(test_images_list_path, "r") as f:
         test_files = [line.strip() for line in f.readlines()]
     for image_path in test_files:
         print(f"Classifying image: {image_path}")
