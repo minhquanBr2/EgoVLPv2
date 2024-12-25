@@ -65,9 +65,9 @@ def prepare_text_embeds(cls_arr, tokenizer, model, device, config, args):
     with torch.no_grad():
         data = {
             'text': text_data,
-            'video': _
+            'video': None
         }
-        _, _, ret = model(
+        z, t, ret = model(
             data, 
             allgather=None,
             n_gpu=config['n_gpu'],
@@ -105,10 +105,10 @@ def classify_image(image_path, model, tokenizer, text_embeds, device, config, ar
     model.eval()
     with torch.no_grad():
         data = {
-            'text': _,
+            'text': None,
             'video': video_data
         }
-        _, _, ret = model(
+        x, y, ret = model(
             data, 
             allgather=None,
             n_gpu=config['n_gpu'],
