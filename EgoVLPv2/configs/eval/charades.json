@@ -18,7 +18,7 @@
                 "input": "text"
             },
             "projection": "minimal",
-            "load_checkpoint": "./checkpoints/Charades-Ego_finetune.pth"
+            "load_checkpoint": "/kaggle/input/egovlpv2-model/Charades-Ego_finetune.pth"
 	}
     },
     "data_loader":
