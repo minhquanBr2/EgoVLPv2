@@ -127,7 +127,7 @@ def classify_image(image_path, model, tokenizer, text_embeds, device, config, ar
     print(f"Video-to-Text Similarity Shape: {sim_v2t.shape}")
 
     predicted_idx = torch.argmax(sim_v2t).item()
-    return predicted_idx, cls_arr[predicted_idx]
+    return predicted_idx
 
 def sim_matrix(a, b, eps=1e-8):
     """
@@ -216,7 +216,8 @@ def eval():
         test_files = [line.strip() for line in f.readlines()]
     for image_path in test_files:
         print(f"Classifying image: {image_path}")
-        class_idx, predicted_class = classify_image(image_path, model, tokenizer, text_embeds, device, config, args)
+        class_idx = classify_image(image_path, model, tokenizer, text_embeds, device, config, args)
+        predicted_class = cls_arr[class_idx]
         print(f'Predicted Action Class: {predicted_class}')
         save_image(args.save_dir, predicted_class, image_path)
     # pathlib.PosixPath = temp
