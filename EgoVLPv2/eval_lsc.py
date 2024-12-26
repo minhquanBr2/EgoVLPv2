@@ -121,14 +121,23 @@ def classify_image(image_path, model, tokenizer, text_embeds, device, config, ar
 
     # Compute similarity between text and image embeddings
     video_embeds = ret['video_embeds'].cpu().detach()
-    sim_v2t = ret['sim_v2t'].cpu().detach()
+    sim_v2t = sim_matrix(video_embeds, text_embeds)
     print(f"Video Embeddings Shape: {video_embeds.shape}")
     print(f"Text Embeddings Shape: {text_embeds.shape}")
     print(f"Video-to-Text Similarity Shape: {sim_v2t.shape}")
 
     predicted_idx = torch.argmax(sim_v2t).item()
-
     return predicted_idx, cls_arr[predicted_idx]
+
+def sim_matrix(a, b, eps=1e-8):
+    """
+    added eps for numerical stability
+    """
+    a_n, b_n = a.norm(dim=1)[:, None], b.norm(dim=1)[:, None]
+    a_norm = a / torch.max(a_n, eps * torch.ones_like(a_n))
+    b_norm = b / torch.max(b_n, eps * torch.ones_like(b_n))
+    sim_mt = torch.mm(a_norm, b_norm.transpose(0, 1))
+    return sim_mt
 
 def save_image(output_dir, predicted_class, image_path):
     """
